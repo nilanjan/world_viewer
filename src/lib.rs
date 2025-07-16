@@ -9,6 +9,10 @@ use winit::{
 #[cfg(target_arch = "wasm32")]
 use wasm_bindgen::prelude::*;
 
+pub mod gltf_parser;
+pub mod render;
+pub mod viewer;
+
 struct State {
     surface: wgpu::Surface,
     device: wgpu::Device,

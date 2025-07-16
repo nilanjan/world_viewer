@@ -1,0 +1,40 @@
+[package]
+name = "world_viewer"
+version = "0.1.0"
+edition = "2021"
+authors = ["Nilanjan Goswami <one0blue@gmail.com>"]
+rust-version = "1.62"
+description = "A 3D world viewer using Rust"
+homepage = "https://github.com/nilanjan/world_viewer"
+keywords = ["3D", "rendering", "graphics", "world view"]
+repository = "https://github.com/nilanjan/world_viewer"
+readme = "README.md"
+include = ["/src/**/*", "/Cargo.toml", "/LICENSE", "/README.md"]
+license = "MIT"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+cfg-if = "1"
+winit = "0.26"
+env_logger = "0.9"
+log = "0.4"
+wgpu = "0.13"
+pollster = "0.2"
+nalgebra = "0.31.0"
+gltf = "0.15"
+sdl2 = "0.36.0"
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[profile.dev]
+opt-level = 3
+#debug =  true
+incremental = true
+debug-assertions = false
+overflow-checks = false
+lto = false
+panic = 'unwind'
+codegen-units = 16
+rpath = false

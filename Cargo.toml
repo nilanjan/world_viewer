@@ -24,6 +24,8 @@ pollster = "0.2"
 nalgebra = "0.31.0"
 gltf = "0.15"
 sdl2 = "0.36.0"
+image = "0.24.8"
+clap = "4.0.32"
 
 [lib]
 crate-type = ["cdylib", "rlib"]

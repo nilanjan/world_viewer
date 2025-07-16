@@ -5,7 +5,7 @@ use sdl2::keyboard::Keycode;
 use crate::gltf_parser::GltfScene;
 use crate::render::{WIDTH, HEIGHT, render_scene};
 
-pub fn show_sdl2_viewer(scene: &GltfScene) {
+pub fn show_sdl2_viewer(scene: &GltfScene, camera_z: f32) {
     let sdl_context = sdl2::init().unwrap();
     let video_subsystem = sdl_context.video().unwrap();
     let window = video_subsystem.window("Software Renderer", WIDTH as u32, HEIGHT as u32)
@@ -35,10 +35,10 @@ pub fn show_sdl2_viewer(scene: &GltfScene) {
         let now = Instant::now();
         let dt = now.duration_since(last_time);
         last_time = now;
-        //angle += dt.as_secs_f32() * 0.7;
-        angle = 0.0f32;
+        angle += dt.as_secs_f32() * 0.7;
+        //angle = 0.0f32;
 
-        render_scene(scene, angle, &mut framebuffer, &mut zbuffer);
+        render_scene(scene, angle, camera_z, &mut framebuffer, &mut zbuffer);
 
         texture.with_lock(None, |buffer: &mut [u8], _pitch: usize| {
             let src = unsafe {

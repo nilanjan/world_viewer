@@ -58,6 +58,45 @@ pub fn show_sdl2_viewer(scene: &GltfScene, camera_z: f32) {
     }
 }
 
+/// Displays a precomputed ARGB framebuffer using SDL2.
+pub fn show_sdl2_framebuffer(framebuffer: &[u32]) {
+    let sdl_context = sdl2::init().unwrap();
+    let video_subsystem = sdl_context.video().unwrap();
+    let window = video_subsystem.window("Raytraced Output", WIDTH as u32, HEIGHT as u32)
+        .position_centered()
+        .vulkan()
+        .build()
+        .unwrap();
+    let mut canvas = window.into_canvas().software().build().unwrap();
+    let texture_creator = canvas.texture_creator();
+    let mut texture = texture_creator.create_texture_streaming(PixelFormatEnum::ARGB8888, WIDTH as u32, HEIGHT as u32).unwrap();
+
+    let mut event_pump = sdl_context.event_pump().unwrap();
+
+    'running: loop {
+        for event in event_pump.poll_iter() {
+            match event {
+                Event::Quit {..} |
+                Event::KeyDown { keycode: Some(Keycode::Escape), .. } => break 'running,
+                _ => {}
+            }
+        }
+        texture.with_lock(None, |buffer: &mut [u8], _pitch: usize| {
+            let src = unsafe {
+                std::slice::from_raw_parts(
+                    framebuffer.as_ptr() as *const u8,
+                    framebuffer.len() * 4
+                )
+            };
+            buffer.copy_from_slice(src);
+        }).unwrap();
+        canvas.clear();
+        canvas.copy(&texture, None, None).unwrap();
+        canvas.present();
+        ::std::thread::sleep(Duration::from_millis(16));
+    }
+}
+
 // This function renders the mesh using SDL2's built-in drawing (not the software framebuffer).
 #[allow(dead_code)]
 pub fn show_sdl2_wireframe(scene: &GltfScene) {

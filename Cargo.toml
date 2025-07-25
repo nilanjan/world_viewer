@@ -2,7 +2,7 @@
 name = "world_viewer"
 version = "0.1.0"
 edition = "2021"
-authors = ["Nilanjan Goswami <one0blue@gmail.com>"]
+authors = ["Nilanjan Goswami <nilanjan.goswami@gmail.com>"]
 rust-version = "1.62"
 description = "A 3D world viewer using Rust"
 homepage = "https://github.com/nilanjan/world_viewer"

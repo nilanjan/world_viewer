@@ -6,13 +6,15 @@
 
 use world_viewer::gltf_parser::load_gltf_scene;
 use world_viewer::viewer::show_sdl2_viewer;
+use world_viewer::render::{WIDTH, HEIGHT};
+use world_viewer::raytracer::render_raytraced_scene;
 use clap::{Arg, Command};
 
 fn main() {
     // -----------------------------------
     // Command Line Argument Parsing (clap)
     // -----------------------------------
-    // Set up the CLI with scene and camera_z options, and help/version info.
+    // Set up the CLI with scene, camera_z, and raytracer options, and help/version info.
     let matches = Command::new("world_viewer")
         .version("0.1.0")
         .author("Nilanjan Goswami <one0blue@gmail.com>")
@@ -33,14 +35,21 @@ fn main() {
                 .help("Camera Z (depth) position for the look-at camera (e.g., 5.5)")
                 .default_value("5.5")
         )
+        .arg(
+            Arg::new("raytracer")
+                .long("raytracer")
+                .help("Use the raytracer for rendering instead of the default rasterizer.")
+                .action(clap::ArgAction::SetTrue)
+        )
         .get_matches();
 
     // -----------------------------------
     // Parse Arguments
     // -----------------------------------
-    // Get the scene name (case-insensitive) and camera depth from the CLI.
+    // Get the scene name (case-insensitive), camera depth, and raytracer flag from the CLI.
     let scene_name = matches.get_one::<String>("scene").unwrap().to_lowercase();
     let camera_z: f32 = matches.get_one::<String>("camera_z").unwrap().parse().unwrap_or(5.5);
+    let use_raytracer = *matches.get_one::<bool>("raytracer").unwrap_or(&false);
 
     // -----------------------------------
     // Map Scene Name to File Path
@@ -63,9 +72,16 @@ fn main() {
     // -----------------------------------
     // Launch the SDL2 Viewer
     // -----------------------------------
-    // This opens a window and renders the scene using a software rasterizer.
-    // The camera's Z position is set by the --camera-z argument.
-    show_sdl2_viewer(&scene, camera_z);
+    // This opens a window and renders the scene using a software rasterizer or raytracer.
+    if use_raytracer {
+        // Raytracer: render the scene to a framebuffer, then display with SDL2
+        let mut framebuffer = vec![0u32; WIDTH * HEIGHT];
+        render_raytraced_scene(&scene, camera_z, 0.0, &mut framebuffer);
+        world_viewer::viewer::show_sdl2_framebuffer(&framebuffer);
+    } else {
+        // Default: rasterizer
+        show_sdl2_viewer(&scene, camera_z);
+    }
     // To use the wireframe viewer instead, uncomment the following line:
     // show_sdl2_wireframe(&scene);
 }

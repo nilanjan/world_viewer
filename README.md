@@ -1,20 +1,44 @@
 # world_viewer
 
-A 3D world viewer written in Rust. Loads and displays glTF scenes using software rasterization and SDL2 for display. Supports textured and untextured models, interactive camera, and command-line scene selection.
+## Changelog
+
+**Recent changes since last commit:**
+- Added a new `raytracer.rs` module for software ray tracing, including:
+  - BVH (Bounding Volume Hierarchy) construction and update methods
+  - BVH traversal and ray-triangle intersection as separate functions
+  - Raytraced framebuffer output compatible with the SDL2 viewer
+- Raytracer now supports scene rotation animation via a rotation angle argument (see `render_raytraced_scene`).
+- Updated CLI (`main.rs`) to support a `--raytracer` flag for selecting between rasterization and ray tracing (currently uses a static angle, but can be animated in a loop).
+- Added `show_sdl2_framebuffer` to the viewer for displaying arbitrary framebuffers
+- Fixed and improved warnings (unused variables, type mismatches, division errors)
+- Improved code documentation and modularity
+
+---
+
+A 3D world viewer written in Rust. Loads and displays glTF scenes using either a real-time software rasterizer or a software raytracer, with SDL2 for display. Supports textured and untextured models, interactive camera, command-line scene selection, and animated scene rotation (in both rasterizer and raytracer modes).
 
 ---
 
 ## Features
 - Loads [glTF](https://www.khronos.org/gltf/) 2.0 3D scenes (ASCII `.gltf` and binary `.glb`)
-- Software rasterizer with support for:
-  - Vertex positions, normals, UVs
-  - Textured and untextured rendering
-  - Basic Lambertian lighting
-  - Z-buffering
-  - Backface culling
+- **Two rendering modes:**
+  - **Software rasterizer:**
+    - Real-time, interactive
+    - Vertex positions, normals, UVs
+    - Textured and untextured rendering
+    - Basic Lambertian lighting
+    - Z-buffering
+    - Backface culling
+    - Animated scene rotation (default)
+  - **Software raytracer:**
+    - BVH acceleration structure for fast ray traversal
+    - Ray-triangle intersection
+    - Scene rotation animation (via angle argument)
+    - Framebuffer output compatible with SDL2 viewer
+    - (Experimental, slower than rasterizer)
 - SDL2-based window for real-time display
-- Command-line interface for scene and camera selection
-- Modular codebase: parsing, rendering, viewing separated
+- Command-line interface for scene, camera, and renderer selection
+- Modular codebase: parsing, rendering, raytracing, and viewing separated
 - Doxygen-style and rustdoc documentation
 - Ready for CI/CD with GitHub Actions (see below)
 
@@ -44,10 +68,27 @@ cargo run --release -- --scene Cube --camera-z 5.5
 ```
 - `--scene` can be: Cube, ToyCar, Lantern, Sponza, Triangle
 - `--camera-z` sets the camera's Z (depth) position (default: 5.5)
+- `--raytracer` uses the raytracer instead of the default rasterizer (currently with a static rotation angle; for animation, call `render_raytraced_scene` in a loop with an increasing angle)
 
-### Example
+#### Rasterizer (default, real-time, animated):
 ```sh
 cargo run --release -- --scene ToyCar --camera-z 7.0
+```
+
+#### Raytracer (static image, no animation by default):
+```sh
+cargo run --release -- --scene ToyCar --camera-z 7.0 --raytracer
+```
+
+#### Raytracer Animation Example (advanced):
+To animate the raytraced scene, call `render_raytraced_scene` in a loop, incrementing the angle:
+```rust
+let mut angle = 0.0;
+loop {
+    render_raytraced_scene(&scene, camera_z, angle, &mut framebuffer);
+    show_sdl2_framebuffer(&framebuffer);
+    angle += 0.01;
+}
 ```
 
 ---
@@ -61,6 +102,7 @@ world_viewer/
 │   ├── lib.rs          # Module declarations
 │   ├── gltf_parser.rs  # glTF parsing logic
 │   ├── render.rs       # Software rasterizer
+│   ├── raytracer.rs    # Software raytracer (BVH, intersection, framebuffer, animation)
 │   └── viewer.rs       # SDL2-based viewer
 ├── assets/
 │   └── model/
@@ -91,6 +133,7 @@ world_viewer/
 - [sdl2](https://crates.io/crates/sdl2) - Window/display
 - [clap](https://crates.io/crates/clap) - CLI parsing
 - [nalgebra](https://crates.io/crates/nalgebra) - Math utilities
+- [wgpu, winit, log, env_logger, pollster, cfg-if] (not all may be used in current code)
 
 ---
 

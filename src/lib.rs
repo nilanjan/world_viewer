@@ -12,6 +12,7 @@ use wasm_bindgen::prelude::*;
 pub mod gltf_parser;
 pub mod render;
 pub mod viewer;
+pub mod raytracer;
 
 struct State {
     surface: wgpu::Surface,

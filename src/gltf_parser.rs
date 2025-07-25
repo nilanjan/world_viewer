@@ -9,7 +9,7 @@ use gltf;
 use image::io::Reader as ImageReader;
 
 /// Represents a single mesh with geometry and material reference.
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Mesh {
     /// Vertex positions (x, y, z)
     pub positions: Vec<[f32; 3]>,
@@ -24,7 +24,7 @@ pub struct Mesh {
 }
 
 /// Represents a decoded RGBA8 texture.
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Texture {
     /// Texture width in pixels
     pub width: u32,
@@ -35,14 +35,14 @@ pub struct Texture {
 }
 
 /// Represents a material, including a reference to a base color texture.
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Material {
     /// Index into the textures array for the base color texture (if any)
     pub base_color_texture: Option<usize>,
 }
 
 /// Represents a parsed glTF scene, including all meshes, textures, and materials.
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct GltfScene {
     /// All meshes in the scene
     pub meshes: Vec<Mesh>,
